@@ -21,8 +21,6 @@ export function Header() {
     const { data: tvGenres = [] } = useGetTVGenresQuery();
     const { user, loading } = useAppSelector((s) => s.auth);
 
-    console.log("Header render", { user, loading });
-
     const openMenu = (menu: "movies" | "tv") => {
         if (closeTimer.current) clearTimeout(closeTimer.current);
         setOpenDropdown(menu);

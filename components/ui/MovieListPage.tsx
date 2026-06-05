@@ -1,9 +1,8 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { getImageUrl } from "@/types/common";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
+import { StarRating } from "@/components/ui/StarRating";
 import type { Movie } from "@/types";
 
 interface MovieListPageProps {
@@ -12,16 +11,9 @@ interface MovieListPageProps {
     totalResults: number;
     totalPages: number;
     page: number;
-    setPage: (p: number) => void;
-    isFetching: boolean;
-}
-
-function StarRating({ score }: { score: number }) {
-    return (
-        <span className="flex items-center gap-1 text-xs text-yellow-400 font-medium">
-            ★ {score.toFixed(1)}
-        </span>
-    );
+    setPage?: (p: number) => void;
+    isFetching?: boolean;
+    buildPageHref?: (p: number) => string;
 }
 
 export function MovieListPage({
@@ -31,7 +23,8 @@ export function MovieListPage({
     totalPages,
     page,
     setPage,
-    isFetching,
+    isFetching = false,
+    buildPageHref,
 }: MovieListPageProps) {
     return (
         <div className="mx-auto max-w-7xl px-4 py-8">
@@ -105,37 +98,104 @@ export function MovieListPage({
 
             {!isFetching && totalPages > 1 && (
                 <div className="mt-10 flex items-center justify-center gap-2">
-                    <button
-                        onClick={() => setPage(Math.max(1, page - 1))}
-                        disabled={page === 1}
-                        className="rounded px-3 py-1.5 text-sm font-medium text-gray-300 border border-gray-600 hover:border-white hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                    >
-                        ← Prev
-                    </button>
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const p =
-                            Math.max(1, Math.min(totalPages - 4, page - 2)) + i;
-                        return (
+                    {setPage ? (
+                        <>
                             <button
-                                key={p}
-                                onClick={() => setPage(p)}
+                                onClick={() => setPage(Math.max(1, page - 1))}
+                                disabled={page === 1}
+                                className="rounded px-3 py-1.5 text-sm font-medium text-gray-300 border border-gray-600 hover:border-white hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                ← Prev
+                            </button>
+                            {Array.from(
+                                { length: Math.min(5, totalPages) },
+                                (_, i) => {
+                                    const p =
+                                        Math.max(
+                                            1,
+                                            Math.min(totalPages - 4, page - 2),
+                                        ) + i;
+                                    return (
+                                        <button
+                                            key={p}
+                                            onClick={() => setPage(p)}
+                                            className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                                                p === page
+                                                    ? "bg-blue-600 text-white"
+                                                    : "text-gray-300 border border-gray-600 hover:border-white hover:text-white"
+                                            }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    );
+                                },
+                            )}
+                            <button
+                                onClick={() =>
+                                    setPage(Math.min(totalPages, page + 1))
+                                }
+                                disabled={page === totalPages}
+                                className="rounded px-3 py-1.5 text-sm font-medium text-gray-300 border border-gray-600 hover:border-white hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Next →
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link
+                                href={
+                                    buildPageHref?.(Math.max(1, page - 1)) ??
+                                    "#"
+                                }
+                                aria-disabled={page === 1}
                                 className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-                                    p === page
-                                        ? "bg-blue-600 text-white"
+                                    page === 1
+                                        ? "pointer-events-none opacity-40 text-gray-300 border border-gray-600"
                                         : "text-gray-300 border border-gray-600 hover:border-white hover:text-white"
                                 }`}
                             >
-                                {p}
-                            </button>
-                        );
-                    })}
-                    <button
-                        onClick={() => setPage(Math.min(totalPages, page + 1))}
-                        disabled={page === totalPages}
-                        className="rounded px-3 py-1.5 text-sm font-medium text-gray-300 border border-gray-600 hover:border-white hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                    >
-                        Next →
-                    </button>
+                                ← Prev
+                            </Link>
+                            {Array.from(
+                                { length: Math.min(5, totalPages) },
+                                (_, i) => {
+                                    const p =
+                                        Math.max(
+                                            1,
+                                            Math.min(totalPages - 4, page - 2),
+                                        ) + i;
+                                    return (
+                                        <Link
+                                            key={p}
+                                            href={buildPageHref?.(p) ?? "#"}
+                                            className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                                                p === page
+                                                    ? "bg-blue-600 text-white"
+                                                    : "text-gray-300 border border-gray-600 hover:border-white hover:text-white"
+                                            }`}
+                                        >
+                                            {p}
+                                        </Link>
+                                    );
+                                },
+                            )}
+                            <Link
+                                href={
+                                    buildPageHref?.(
+                                        Math.min(totalPages, page + 1),
+                                    ) ?? "#"
+                                }
+                                aria-disabled={page === totalPages}
+                                className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                                    page === totalPages
+                                        ? "pointer-events-none opacity-40 text-gray-300 border border-gray-600"
+                                        : "text-gray-300 border border-gray-600 hover:border-white hover:text-white"
+                                }`}
+                            >
+                                Next →
+                            </Link>
+                        </>
+                    )}
                 </div>
             )}
         </div>

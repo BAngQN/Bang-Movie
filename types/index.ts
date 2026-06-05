@@ -156,4 +156,19 @@ export interface FavoriteItem {
     title: string;
     poster_path: string | null;
     genre_type: "movie" | "tv";
+    added_at: number; // timestamp
+}
+
+export interface MovieListResponse {
+    page: number;
+    results: Movie[];
+    total_results: number;
+    total_pages: number;
+}
+
+export interface TVListResponse {
+    page: number;
+    results: TVShow[];
+    total_results: number;
+    total_pages: number;
 }

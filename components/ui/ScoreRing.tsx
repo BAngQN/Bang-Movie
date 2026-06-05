@@ -1,5 +1,3 @@
-"use client";
-
 export function ScoreRing({ score }: { score: number }) {
     const pct = Math.round(score * 10);
     const color = pct >= 70 ? "#21d07a" : pct >= 50 ? "#d2d531" : "#db2360";

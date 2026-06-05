@@ -42,6 +42,7 @@ export function subscribeToFavorites(
             const data = doc.data();
             return {
                 ...data,
+                added_at: data.added_at.toMillis(), // Firestore Timestamp to number
             };
         });
         callback(items as FavoriteItem[]);

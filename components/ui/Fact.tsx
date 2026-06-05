@@ -1,5 +1,3 @@
-"use client";
-
 export function Fact({ label, value }: { label: string; value: string }) {
     return (
         <div>

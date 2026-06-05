@@ -1,12 +1,16 @@
-"use client";
-
-import { useState } from "react";
-import { useGetPopularFullQuery } from "@/store/api";
 import { MovieListPage } from "@/components/ui/MovieListPage";
+import { getPopularMovies } from "@/lib/tmdb";
 
-export default function PopularPage() {
-    const [page, setPage] = useState(1);
-    const { data, isFetching } = useGetPopularFullQuery(page);
+type PopularPageProps = {
+    searchParams?: Promise<{ page?: string | string[] }>;
+};
+
+export default async function PopularPage({ searchParams }: PopularPageProps) {
+    const params = (await searchParams) ?? {};
+    const rawPage = Array.isArray(params.page) ? params.page[0] : params.page;
+    const page = Math.max(1, Number(rawPage ?? "1") || 1);
+    const data = await getPopularMovies(page);
+
     return (
         <MovieListPage
             title="Popular Movies"
@@ -14,8 +18,7 @@ export default function PopularPage() {
             totalResults={data?.total_results ?? 0}
             totalPages={Math.min(data?.total_pages ?? 1, 20)}
             page={page}
-            setPage={setPage}
-            isFetching={isFetching}
+            buildPageHref={(p) => `/movies/popular?page=${p}`}
         />
     );
 }

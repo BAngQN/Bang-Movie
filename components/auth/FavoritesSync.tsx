@@ -19,7 +19,6 @@ export function FavoritesSync() {
             return;
         }
         const unsubscribe = subscribeToFavorites(user.uid, (items) => {
-            console.log("Received favorites update", items);
             dispatch(setFavorites(items));
         });
         return unsubscribe;

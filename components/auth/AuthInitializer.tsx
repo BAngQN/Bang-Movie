@@ -17,14 +17,26 @@ export function AuthInitializer() {
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
             console.log("Auth state changed", firebaseUser);
             if (firebaseUser) {
-                const authUser: AuthUser = {
-                    uid: firebaseUser.uid,
-                    email: firebaseUser.email,
-                    displayName: firebaseUser.displayName,
-                    photoURL: firebaseUser.photoURL,
-                };
-                dispatch(setUser(authUser));
+                // Set a lightweight cookie so middleware can guard protected routes
+                firebaseUser
+                    .getIdToken()
+                    .then((token) => {
+                        document.cookie = `session=${token}; path=/; SameSite=Lax`;
+                        const authUser: AuthUser = {
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email,
+                            displayName: firebaseUser.displayName,
+                            photoURL: firebaseUser.photoURL,
+                        };
+                        dispatch(setUser(authUser));
+                    })
+                    .catch(() => {
+                        dispatch(setUser(null));
+                    });
             } else {
+                // Clear cookie so middleware redirects unauthenticated users
+                document.cookie =
+                    "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
                 dispatch(setUser(null));
             }
         });
