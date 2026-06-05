@@ -5,6 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { AuthUser, setUser } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
+import { deleteCookie, setCookies } from "@/lib/cookies";
 
 /**
  * Mounts once inside ReduxProvider and keeps the Redux auth state
@@ -21,7 +22,8 @@ export function AuthInitializer() {
                 firebaseUser
                     .getIdToken()
                     .then((token) => {
-                        document.cookie = `session=${token}; path=/; SameSite=Lax`;
+                        // document.cookie = `session=${token}; path=/; SameSite=Lax`;
+                        setCookies("session", token);
                         const authUser: AuthUser = {
                             uid: firebaseUser.uid,
                             email: firebaseUser.email,
@@ -35,8 +37,7 @@ export function AuthInitializer() {
                     });
             } else {
                 // Clear cookie so middleware redirects unauthenticated users
-                document.cookie =
-                    "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                deleteCookie("session");
                 dispatch(setUser(null));
             }
         });
