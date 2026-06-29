@@ -18,8 +18,11 @@ export async function setCookies(name: string, value: string): Promise<void> {
     cookieStore.set({
         name: name,
         value: value,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/",
         sameSite: "lax",
+        maxAge: 60 * 60, // 1 hour — matches Firebase ID token TTL
     });
 }
 
